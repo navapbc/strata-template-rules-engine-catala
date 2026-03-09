@@ -1,0 +1,58 @@
+name: CI - {{app_name}}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - {{app_name}}/**
+      - .github/workflows/ci-{{app_name}}.yml
+  pull_request:
+    paths:
+      - {{app_name}}/**
+      - .github/workflows/ci-{{app_name}}.yml
+
+defaults:
+  run:
+    working-directory: ./{{app_name}}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run format check
+        run: make format-check
+
+      - name: Run linting
+        run: make lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make build
+
+      - name: Run Python tests
+        run: make test-coverage
+
+  catala-test:
+    name: Catala Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Catala tests
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/{{app_name}}":/work \
+            -w /work \
+            -e HOME=/home/ocaml \
+            --user root \
+            registry.gitlab.inria.fr/catala/ci-images:latest-python \
+            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-test'

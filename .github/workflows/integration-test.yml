@@ -1,0 +1,67 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nava-platform CLI
+        run: pip install git+https://github.com/navapbc/platform-cli.git
+
+      - name: Install template
+        run: |
+          mkdir -p /tmp/test-project
+          nava-platform app install \
+            --template-uri "$GITHUB_WORKSPACE" \
+            --data app_local_port=3001 \
+            /tmp/test-project \
+            test-app
+
+      - name: Build Catala files
+        run: |
+          docker run --rm \
+            -v /tmp/test-project/test-app:/work \
+            -w /work \
+            -e HOME=/home/ocaml \
+            --user root \
+            registry.gitlab.inria.fr/catala/ci-images:latest-python \
+            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-build'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install Python dependencies
+        working-directory: /tmp/test-project/test-app
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry install --no-root --all-extras
+
+      - name: Run Catala tests
+        run: |
+          docker run --rm \
+            -v /tmp/test-project/test-app:/work \
+            -w /work \
+            -e HOME=/home/ocaml \
+            --user root \
+            registry.gitlab.inria.fr/catala/ci-images:latest-python \
+            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-test'
+
+      - name: Run Python tests
+        working-directory: /tmp/test-project/test-app
+        env:
+          PY_RUN_APPROACH: local
+        run: make test-coverage
