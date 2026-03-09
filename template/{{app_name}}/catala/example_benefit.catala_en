@@ -1,0 +1,43 @@
+> Example Benefit Eligibility Rules
+
+This file demonstrates a simple benefit eligibility determination
+encoded in Catala. Replace this with your actual legislative rules.
+
+## Article 1: Definitions
+
+```catala
+declaration structure Individual:
+  data age content integer
+  data income content money
+  data is_resident content boolean
+
+declaration structure BenefitResult:
+  data eligible content boolean
+  data monthly_amount content money
+
+declaration scope BenefitEligibility:
+  input individual content Individual
+  output result content BenefitResult
+```
+
+## Article 2: Eligibility Criteria
+
+An individual is eligible for the benefit if they meet ALL of the
+following conditions:
+- They are at least 18 years old
+- Their annual income is less than $30,000
+- They are a resident
+
+```catala
+scope BenefitEligibility:
+  definition result equals BenefitResult {
+    -- eligible:
+      individual.age >= 18
+      and individual.income < $30,000
+      and individual.is_resident
+    -- monthly_amount:
+      if individual.income < $15,000 then $500
+      else if individual.income < $25,000 then $300
+      else $150
+  }
+```
