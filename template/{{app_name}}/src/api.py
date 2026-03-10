@@ -64,18 +64,15 @@ def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
     try:
         catala_leave_type = LeaveType(code=leave_type_code, value=None)
         catala_periods = [
-            LeavePeriod(length_in_weeks=Integer(p.length_in_weeks))
-            for p in input.leave_periods
+            LeavePeriod(length_in_weeks=Integer(p.length_in_weeks)) for p in input.leave_periods
         ]
 
         scope_result = leave_balance(
             LeaveBalanceIn(
                 application_leave_type_in=catala_leave_type,
                 leave_periods_in=catala_periods,
-                leave_taken_in_benefit_year_in=Integer(
-                    input.leave_taken_in_benefit_year),
-                total_leave_taken_all_types_in=Integer(
-                    input.total_leave_taken_all_types),
+                leave_taken_in_benefit_year_in=Integer(input.leave_taken_in_benefit_year),
+                total_leave_taken_all_types_in=Integer(input.total_leave_taken_all_types),
             )
         )
 

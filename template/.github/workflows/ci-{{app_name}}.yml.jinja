@@ -40,5 +40,23 @@ jobs:
           make build
           make test-coverage
 
-      - name: Run Catala CI
-        run: make catala-ci
+  catala-ci:
+    name: Catala Clerk CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+        
+      - name: Install Catala
+        shell: bash
+        run: |
+          opam update
+          opam install catala
+      
+      - name: Clerk CI
+        shell: bash
+        run: |
+          eval $(opam env)
+          make catala-ci
