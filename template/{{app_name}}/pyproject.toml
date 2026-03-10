@@ -29,6 +29,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 100
+exclude = [
+    "src/generated/**"
+]
 
 [tool.ruff.lint]
 select = ["B", "C", "E", "F", "W", "B9"]
@@ -53,6 +56,9 @@ warn_no_return = true
 warn_redundant_casts = true
 warn_unreachable = true
 warn_unused_ignores = true
+exclude = [
+    'src/generated/'
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
