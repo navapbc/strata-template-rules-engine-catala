@@ -3,21 +3,46 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from src.generated.Paidleave import (
+    LeaveBalanceIn,
+    LeaveType,
+    LeaveType_Code,
+    LeavePeriod,
+    leave_balance,
+)
+from src.generated.catala_runtime import Integer
+
+
 app = FastAPI(
     title="Rules Engine API",
     description="API for evaluating rules compiled from Catala legislative specifications.",
 )
 
 
-class IndividualInput(BaseModel):
-    age: int
-    income: float
-    is_resident: bool
+class LeavePeriodInput(BaseModel):
+    length_in_weeks: int
 
 
-class BenefitResult(BaseModel):
-    eligible: bool
-    monthly_amount: float
+class LeaveBalanceInput(BaseModel):
+    leave_type: str
+    leave_periods: list[LeavePeriodInput]
+    leave_taken_in_benefit_year: int
+    total_leave_taken_all_types: int
+
+
+class LeaveBalanceResult(BaseModel):
+    max_entitlement: int
+    leave_balance: int
+    total_requested: int
+    has_sufficient_leave_balance: bool
+
+
+LEAVE_TYPE_MAP = {
+    "medical_leave": LeaveType_Code.MedicalLeave,
+    "bonding_leave": LeaveType_Code.BondingLeave,
+    "care_for_family": LeaveType_Code.CareForFamily,
+    "care_for_family_service_member": LeaveType_Code.CareForFamilyServiceMember,
+}
 
 
 @app.get("/health")
@@ -25,36 +50,40 @@ def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-@app.post("/evaluate/benefit-eligibility", response_model=BenefitResult)
-def evaluate_benefit_eligibility(individual: IndividualInput) -> BenefitResult:
-    """Evaluate benefit eligibility using Catala-compiled rules.
-
-    Replace this stub with a call to the Catala-generated Python module
-    once you have compiled your .catala_en files to Python.
-    """
-    try:
-        # TODO: Replace with import from src.generated module once Catala
-        # files are compiled. Example:
-        #
-        #   from src.generated.example_benefit import BenefitEligibility
-        #   result = BenefitEligibility(individual=...)
-        #
-        # For now, this is a placeholder that mirrors the Catala rule logic.
-        eligible = (
-            individual.age >= 18
-            and individual.income < 30_000
-            and individual.is_resident
+@app.post("/evaluate/leave-balance", response_model=LeaveBalanceResult)
+def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
+    """Evaluate leave balance sufficiency using Catala-compiled rules."""
+    leave_type_code = LEAVE_TYPE_MAP.get(input.leave_type)
+    if leave_type_code is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid leave_type '{input.leave_type}'. "
+            f"Must be one of: {', '.join(LEAVE_TYPE_MAP.keys())}",
         )
-        if individual.income < 15_000:
-            monthly_amount = 500.0
-        elif individual.income < 25_000:
-            monthly_amount = 300.0
-        else:
-            monthly_amount = 150.0
 
-        return BenefitResult(
-            eligible=eligible,
-            monthly_amount=monthly_amount if eligible else 0.0,
+    try:
+        catala_leave_type = LeaveType(code=leave_type_code, value=None)
+        catala_periods = [
+            LeavePeriod(length_in_weeks=Integer(p.length_in_weeks))
+            for p in input.leave_periods
+        ]
+
+        scope_result = leave_balance(
+            LeaveBalanceIn(
+                application_leave_type_in=catala_leave_type,
+                leave_periods_in=catala_periods,
+                leave_taken_in_benefit_year_in=Integer(
+                    input.leave_taken_in_benefit_year),
+                total_leave_taken_all_types_in=Integer(
+                    input.total_leave_taken_all_types),
+            )
+        )
+
+        return LeaveBalanceResult(
+            max_entitlement=int(scope_result.max_entitlement.value),
+            leave_balance=int(scope_result.leave_balance.value),
+            total_requested=int(scope_result.total_requested.value),
+            has_sufficient_leave_balance=scope_result.has_sufficient_leave_balance,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
