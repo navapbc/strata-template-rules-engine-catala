@@ -26,9 +26,8 @@ root
 
 | Command | Description |
 |---|---|
-| `make catala-build` | Compile Catala sources to Python |
-| `make catala-typecheck` | Typecheck Catala sources |
-| `make catala-test` | Run Catala test assertions |
+| `make catala-build` | Compile Catala sources to Python via clerk and copy `dates.py` to `src/generated/` |
+| `make catala-test` | Run Catala test assertions via clerk |
 | `make test` | Run Python API tests |
 | `make test-all` | Run all Catala and Python tests |
 | `make format` | Format Python files |
@@ -39,16 +38,18 @@ See the [Makefile](/{{ app_name }}/Makefile) for a full list of commands.
 
 ## Docker and Native Development
 
-Tests, linting, and Catala compilation can be run either inside Docker or natively.
+The dev Docker image installs Python dependencies at build time and volume-mounts `src/`, `tests/`, and `catala/` for live reloading during development. Catala compilation (via `clerk`) should be run on the host or in a separate container with the Catala compiler installed.
+
+Tests, linting, and formatting can be run either inside Docker or natively.
 
 * `export PY_RUN_APPROACH=local` will run commands natively
 * `export PY_RUN_APPROACH=docker` will run commands within Docker (default)
 
 ## Adding New Rules
 
-1. Create a new `.catala_en` file in `catala/` encoding your legislative text and rules.
-2. Add test assertions in `catala/tests/`.
-3. Run `make catala-typecheck` to verify the rules typecheck.
-4. Run `make catala-build` to compile to Python.
+1. Create a new `.catala_en` file in `catala/src/` encoding your legislative text and rules.
+2. Add a target entry in `catala/clerk.toml` for the new module.
+3. Add test assertions in `catala/tests/`.
+4. Run `make catala-build` to compile to Python (typechecking happens as part of the build; outputs go to `src/generated/`).
 5. Import the generated module in `src/api.py` and create an endpoint.
 6. Add Python tests in `tests/`.

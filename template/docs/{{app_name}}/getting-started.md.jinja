@@ -31,11 +31,11 @@ A simple [docker-compose.yml](/{{ app_name }}/docker-compose.yml) has been inclu
 
 ## Working with Catala
 
-Catala source files live in the `catala/` directory. The typical workflow is:
+Catala source files live in the `catala/src/` directory and are built using [clerk](https://catala-lang.org/), the Catala build system. The build is configured via `catala/clerk.toml`. The typical workflow is:
 
-1. Write or edit rules in `.catala_en` files (see `catala/example_benefit.catala_en` for an example).
+1. Write or edit rules in `.catala_en` files (see `catala/src/paidleave.catala_en` for an example).
 2. Write test assertions in `catala/tests/`.
-3. Compile Catala to Python: `make catala-build`
+3. Compile Catala to Python: `make catala-build` (this runs `clerk build` and copies `dates.py` to `src/generated/`)
 4. Run Catala tests: `make catala-test`
 5. Run all checks: `make test-all`
 
