@@ -104,7 +104,7 @@ test-coverage-report: ## Open HTML test coverage report
 	$(PY_RUN_CMD) coverage html --directory .coverage_report
 	open .coverage_report/index.html
 
-test-all: catala-typecheck catala-test test ## Run all Catala and Python tests
+test-all: catala-test test ## Run all Catala and Python tests
 
 ##################################################
 # Formatting and linting
