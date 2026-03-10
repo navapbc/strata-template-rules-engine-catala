@@ -52,7 +52,7 @@ setup-local:
 # Build & Run
 ##################################################
 
-build:
+build: catala-build
 	docker compose build
 
 start:
@@ -78,6 +78,7 @@ CATALA_GEN_DIR := src/generated
 catala-build: ## Compile Catala sources to Python via clerk
 	cd $(CATALA_DIR) && clerk build
 	cp $(CATALA_DIR)/_build/libcatala/python/dates.py $(CATALA_GEN_DIR)/
+	cp $(CATALA_DIR)/_target/paidleave/python/* $(CATALA_GEN_DIR)/
 
 catala-test: ## Run Catala test assertions via clerk
 	cd $(CATALA_DIR) && clerk test
