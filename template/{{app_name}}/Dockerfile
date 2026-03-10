@@ -59,12 +59,6 @@ COPY pyproject.toml poetry.lock* ./
 RUN poetry config virtualenvs.in-project false && poetry env use python
 RUN poetry install --no-root --with dev
 
-COPY . /app
-
-# Copy generated Catala Python files from clerk build
-COPY --from=catala-builder /home/opam/catala/_build/libcatala/python/dates.py /app/src/generated/
-COPY --from=catala-builder /home/opam/catala/_target/paidleave/python/  /app/src/generated/
-
 ENV HOST=0.0.0.0
 
 CMD ["poetry", "run", "uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

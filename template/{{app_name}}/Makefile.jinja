@@ -72,20 +72,18 @@ check: format-check lint test
 # Catala Compilation
 ##################################################
 
-CATALA_SRC_DIR := catala
+CATALA_DIR := catala
 CATALA_GEN_DIR := src/generated
 
-catala-build: ## Compile Catala sources to Python
-	catala python -o $(CATALA_GEN_DIR)/example_benefit.py $(CATALA_SRC_DIR)/example_benefit.catala_en
+catala-build: ## Compile Catala sources to Python via clerk
+	cd $(CATALA_DIR) && clerk build
+	cp $(CATALA_DIR)/_build/libcatala/python/dates.py $(CATALA_GEN_DIR)/
 
-catala-typecheck: ## Typecheck Catala sources
-	catala typecheck $(CATALA_SRC_DIR)/example_benefit.catala_en
+catala-test: ## Run Catala test assertions via clerk
+	cd $(CATALA_DIR) && clerk test
 
-catala-test: ## Run Catala test assertions
-	catala test $(CATALA_SRC_DIR)/tests/test_example_benefit.catala_en
-
-catala-html: ## Generate HTML documentation from Catala sources
-	catala html -o docs/generated/ $(CATALA_SRC_DIR)/example_benefit.catala_en
+catala-ci: ## Run Catala CI build and tests
+	cd $(CATALA_DIR) && clerk ci
 
 ##################################################
 # Testing

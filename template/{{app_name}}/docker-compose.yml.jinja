@@ -17,5 +17,7 @@ services:
       - PYTHONPATH=/app/
     ports:
       - {{ app_local_port }}:{{ app_local_port }}
-    # volumes:
-    #   - ./:/app
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./catala:/app/catala
