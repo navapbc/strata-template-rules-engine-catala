@@ -46,6 +46,8 @@ jobs:
     name: Catala Tests
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:
