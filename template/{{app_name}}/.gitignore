@@ -37,3 +37,4 @@ src/generated/*.py
 
 # Catala build artifacts
 _build/
+_target/
