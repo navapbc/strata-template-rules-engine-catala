@@ -86,4 +86,4 @@ def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
             has_sufficient_leave_balance=scope_result.has_sufficient_leave_balance,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
