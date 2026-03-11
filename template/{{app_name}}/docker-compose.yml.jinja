@@ -18,6 +18,4 @@ services:
     ports:
       - {{ app_local_port }}:{{ app_local_port }}
     volumes:
-      - ./src:/app/src
-      - ./tests:/app/tests
-      - ./catala:/app/catala
+      - ./:/app/
