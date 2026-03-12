@@ -1,5 +1,5 @@
 <p>
-  <img src="template/docs/assets/Nava-Strata-Logo-V02.svg" alt="Nava Strata" width="400">
+  <img src="template-only-docs/assets/Nava-Strata-Logo-V02.svg" alt="Nava Strata" width="400">
 </p>
 <p><i>Open source tools for every layer of government service delivery.</i></p>
 <p><b>Strata is a gold-standard target architecture and suite of open-source tools that gives government agencies everything they need to run a modern service.</b></p>
@@ -27,7 +27,7 @@ This is a template for creating a rules engine using [Catala](https://catala-lan
 
 * Catala source files for encoding legislative rules with literate programming style
 * Compilation pipeline from Catala to Python
-* FastAPI-based REST API for exposing compiled rules as endpoints
+* REST API for exposing compiled rules as endpoints
 * Docker-based development environment with the Catala compiler pre-installed
 * Thorough formatting & linting tools for the Python wrapper layer
 * CI/CD workflow for linting, typechecking, and testing
