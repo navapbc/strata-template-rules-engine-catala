@@ -77,6 +77,7 @@ CATALA_GEN_DIR := src/generated
 
 catala-build: ## Compile Catala sources to Python via clerk
 	cd $(CATALA_DIR) && clerk build
+	# There's a bug where dates.py is missing from the target code
 	cp $(CATALA_DIR)/_build/libcatala/python/dates.py $(CATALA_GEN_DIR)/
 	cp $(CATALA_DIR)/_target/paidleave/python/* $(CATALA_GEN_DIR)/
 
