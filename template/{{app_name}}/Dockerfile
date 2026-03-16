@@ -9,7 +9,7 @@
 # -------------------
 FROM python:3.13-slim AS base
 
-RUN pip install --no-cache-dir poetry==1.5
+RUN pip install --no-cache-dir poetry==2.1.1
 
 RUN apt-get update \
     && apt-get upgrade --yes \
@@ -37,15 +37,17 @@ USER ${RUN_USER}
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock* ./
-RUN poetry config virtualenvs.in-project false && poetry env use python
-RUN poetry install --no-root --with dev
+
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+
+RUN poetry install --no-root --extras dev
 
 ENV HOST=0.0.0.0
 
 # Add project's virtual env to the PATH so we can directly run scripts defined in pyproject.toml
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD ["start-server"]
+CMD ["python", "-m", "src.main"]
 
 # ---------
 # Release
@@ -60,8 +62,8 @@ RUN rm -fr /app/.venv
 
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 
-# Install production dependencies only
-RUN poetry install --no-root --only main
+# Install production dependencies and project (for console scripts like start-server)
+RUN poetry install --only main
 
 # Add project's virtual env to the PATH so we can directly run scripts defined in pyproject.toml
 ENV PATH="/app/.venv/bin:$PATH"
