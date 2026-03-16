@@ -42,7 +42,10 @@ RUN poetry install --no-root --with dev
 
 ENV HOST=0.0.0.0
 
-CMD ["poetry", "run", "uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Add project's virtual env to the PATH so we can directly run scripts defined in pyproject.toml
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD ["start-server"]
 
 # ---------
 # Release
@@ -60,10 +63,10 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 # Install production dependencies only
 RUN poetry install --no-root --only main
 
-
+# Add project's virtual env to the PATH so we can directly run scripts defined in pyproject.toml
 ENV PATH="/app/.venv/bin:$PATH"
 ENV HOST=0.0.0.0
 
 USER ${RUN_USER}
 
-CMD ["poetry", "run", "uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["start-server"]
