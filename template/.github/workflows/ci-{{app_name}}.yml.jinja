@@ -1,0 +1,67 @@
+name: CI - {{app_name}}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - {{app_name}}/**
+      - .github/workflows/ci-{{app_name}}.yml
+  pull_request:
+    paths:
+      - {{app_name}}/**
+      - .github/workflows/ci-{{app_name}}.yml
+
+defaults:
+  run:
+    working-directory: ./{{app_name}}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run format check
+        run: make format-check
+
+      - name: Run linting
+        run: make lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make build
+
+      - name: Run Python tests
+        run: make test-coverage
+
+  # Note: Catala CI image has an issue with missing gmpy2 package and not pinnable to 1.1.0
+  # https://github.com/CatalaLang/catala/issues/979
+  catala-test:
+    name: Catala Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+
+      - name: Install Catala
+        shell: bash
+        run: |
+          opam update
+          opam install catala=1.1.0
+
+      - name: Run Catala Test
+        shell: bash
+        run: |
+          eval $(opam env)
+          make catala-test
