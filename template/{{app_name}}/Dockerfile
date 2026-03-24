@@ -9,7 +9,7 @@
 # -------------------
 FROM python:3.13-slim AS base
 
-RUN pip install --no-cache-dir uv
+RUN pip install --no-cache-dir uv==0.10.11
 
 RUN apt-get update \
     && apt-get upgrade --yes \
@@ -36,7 +36,7 @@ ARG RUN_USER
 USER ${RUN_USER}
 WORKDIR /app
 
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml uv.lock ./
 
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
@@ -57,8 +57,6 @@ ARG RUN_USER
 
 WORKDIR /app
 COPY . /app
-
-RUN rm -fr /app/.venv
 
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
