@@ -13,25 +13,34 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
+_configured = False
+
 
 def configure_telemetry() -> None:
     """Configure OpenTelemetry tracing and metrics.
 
     Trace IDs are propagated via W3C TraceContext headers (traceparent / tracestate).
     Telemetry is exported via OTLP when OTEL_EXPORTER_OTLP_ENDPOINT is set.
+
+    This function is idempotent; subsequent calls are no-ops.
     """
+    global _configured
+    if _configured:
+        return
+    _configured = True
+
     service_name = os.getenv("OTEL_SERVICE_NAME", "{{ app_name }}")
     resource = Resource.create({SERVICE_NAME: service_name})
+    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 
-    _configure_tracing(resource)
-    _configure_metrics(resource)
+    _configure_tracing(resource, otlp_endpoint)
+    _configure_metrics(resource, otlp_endpoint)
     _configure_propagator()
 
 
-def _configure_tracing(resource: Resource) -> None:
+def _configure_tracing(resource: Resource, otlp_endpoint: str | None) -> None:
     tracer_provider = TracerProvider(resource=resource)
 
-    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
     if otlp_endpoint:
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
@@ -40,10 +49,9 @@ def _configure_tracing(resource: Resource) -> None:
     trace.set_tracer_provider(tracer_provider)
 
 
-def _configure_metrics(resource: Resource) -> None:
+def _configure_metrics(resource: Resource, otlp_endpoint: str | None) -> None:
     readers = []
 
-    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
     if otlp_endpoint:
         from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 
