@@ -1,0 +1,66 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nava-platform CLI
+        run: pip install git+https://github.com/navapbc/platform-cli.git
+
+      - name: Install template
+        run: |
+          mkdir -p /tmp/test-project
+          nava-platform app install \
+            --template-uri "$GITHUB_WORKSPACE" \
+            /tmp/test-project \
+            test-app
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+
+      - name: Install Catala
+        run: |
+          opam update
+          opam install catala=1.1.0
+
+      - name: Build Catala files
+        working-directory: /tmp/test-project/test-app
+        run: |
+          eval $(opam env)
+          make catala-build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install Python dependencies
+        working-directory: /tmp/test-project/test-app
+        run: make setup-local
+
+      - name: Run Catala tests
+        working-directory: /tmp/test-project/test-app
+        run: |
+          eval $(opam env)
+          make catala-test
+
+      - name: Run Python tests
+        working-directory: /tmp/test-project/test-app
+        env:
+          PY_RUN_APPROACH: local
+        run: make test-coverage
