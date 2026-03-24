@@ -9,7 +9,7 @@
 # -------------------
 FROM python:3.13-slim AS base
 
-RUN pip install --no-cache-dir poetry==2.1.1
+RUN pip install --no-cache-dir uv
 
 RUN apt-get update \
     && apt-get upgrade --yes \
@@ -36,11 +36,11 @@ ARG RUN_USER
 USER ${RUN_USER}
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock* ./
+COPY pyproject.toml uv.lock* ./
 
-ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
-RUN poetry install --no-root --extras dev
+RUN uv sync --frozen --extra dev --no-install-project
 
 ENV HOST=0.0.0.0
 
@@ -60,10 +60,10 @@ COPY . /app
 
 RUN rm -fr /app/.venv
 
-ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
 # Install production dependencies and project (for console scripts like start-server)
-RUN poetry install --only main
+RUN uv sync --frozen --no-dev
 
 # Add project's virtual env to the PATH so we can directly run scripts defined in pyproject.toml
 ENV PATH="/app/.venv/bin:$PATH"
