@@ -28,9 +28,6 @@ override.env
 *.code-workspace
 .vscode
 
-# Poetry installer local error logs
-poetry-installer-error-*.log
-
 # Catala build artifacts
 _build/
 _target/

@@ -14,9 +14,9 @@ ifdef CI
 endif
 
 ifeq "$(PY_RUN_APPROACH)" "local"
-PY_RUN_CMD := poetry run
+PY_RUN_CMD := uv run
 else
-PY_RUN_CMD := docker compose run $(DOCKER_EXEC_ARGS) --rm $(APP_NAME) poetry run
+PY_RUN_CMD := docker compose run $(DOCKER_EXEC_ARGS) --rm $(APP_NAME) uv run
 endif
 
 # Docker user configuration
@@ -45,8 +45,7 @@ release-build:
 ##################################################
 
 setup-local:
-	poetry config virtualenvs.in-project true
-	poetry install --no-root
+	uv sync --extra dev
 
 ##################################################
 # Build & Run
