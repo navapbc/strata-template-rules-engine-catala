@@ -1,5 +1,9 @@
 """FastAPI wrapper for Catala-generated rules engine."""
 
+import time
+
+from opentelemetry import metrics
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -16,6 +20,20 @@ from src.generated.catala_runtime import Integer
 app = FastAPI(
     title="Rules Engine API",
     description="API for evaluating rules compiled from Catala legislative specifications.",
+)
+
+FastAPIInstrumentor.instrument_app(app)
+
+_meter = metrics.get_meter(__name__)
+_evaluation_counter = _meter.create_counter(
+    name="rules_engine.evaluations",
+    unit="{evaluation}",
+    description="Number of rule evaluations performed.",
+)
+_evaluation_duration = _meter.create_histogram(
+    name="rules_engine.evaluation.duration",
+    unit="ms",
+    description="Duration of rule evaluations in milliseconds.",
 )
 
 
@@ -61,6 +79,8 @@ def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
             f"Must be one of: {', '.join(LEAVE_TYPE_MAP.keys())}",
         )
 
+    metric_attrs = {"leave_type": input.leave_type}
+    start_ms = time.monotonic() * 1000
     try:
         catala_leave_type = LeaveType(code=leave_type_code, value=None)
         catala_periods = [
@@ -76,11 +96,15 @@ def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
             )
         )
 
-        return LeaveBalanceResult(
+        result = LeaveBalanceResult(
             max_entitlement=int(scope_result.max_entitlement.value),
             leave_balance=int(scope_result.leave_balance.value),
             total_requested=int(scope_result.total_requested.value),
             has_sufficient_leave_balance=scope_result.has_sufficient_leave_balance,
         )
+        _evaluation_counter.add(1, {**metric_attrs, "outcome": "success"})
+        _evaluation_duration.record(time.monotonic() * 1000 - start_ms, metric_attrs)
+        return result
     except Exception as e:
+        _evaluation_counter.add(1, {**metric_attrs, "outcome": "error"})
         raise HTTPException(status_code=500, detail=str(e)) from e
