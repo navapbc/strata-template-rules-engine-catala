@@ -9,7 +9,7 @@
 # -------------------
 FROM python:3.13-slim AS base
 
-RUN pip install --no-cache-dir uv==0.10.11
+RUN pip install --no-cache-dir uv==0.11.1
 
 RUN apt-get update \
     && apt-get upgrade --yes \
