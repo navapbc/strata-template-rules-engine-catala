@@ -46,7 +46,9 @@ jobs:
 
       - name: Install Python dependencies
         working-directory: /tmp/test-project/test-app
-        run: make setup-local
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry install --no-root --all-extras
 
       - name: Run Catala tests
         run: |
