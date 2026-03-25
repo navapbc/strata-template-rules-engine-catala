@@ -33,7 +33,7 @@ jobs:
             -w /work \
             -e HOME=/home/ocaml \
             registry.gitlab.inria.fr/catala/ci-images:latest-python \
-            make SHELL=/bin/sh catala-build
+            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-build'
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -54,7 +54,7 @@ jobs:
             -w /work \
             -e HOME=/home/ocaml \
             registry.gitlab.inria.fr/catala/ci-images:latest-python \
-            make SHELL=/bin/sh catala-test
+            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-test'
 
       - name: Run Python tests
         working-directory: /tmp/test-project/test-app
