@@ -22,8 +22,6 @@ app = FastAPI(
     description="API for evaluating rules compiled from Catala legislative specifications.",
 )
 
-# Instrument before configure_telemetry() runs — OTel resolves the active provider
-# lazily at span/metric creation time, so registration order does not matter.
 FastAPIInstrumentor.instrument_app(app)
 
 _meter = metrics.get_meter(__name__)
@@ -94,8 +92,10 @@ def evaluate_leave_balance(input: LeaveBalanceInput) -> LeaveBalanceResult:
             LeaveBalanceIn(
                 application_leave_type_in=catala_leave_type,
                 leave_periods_in=catala_periods,
-                leave_taken_in_benefit_year_in=Integer(input.leave_taken_in_benefit_year),
-                total_leave_taken_all_types_in=Integer(input.total_leave_taken_all_types),
+                leave_taken_in_benefit_year_in=Integer(
+                    input.leave_taken_in_benefit_year),
+                total_leave_taken_all_types_in=Integer(
+                    input.total_leave_taken_all_types),
             )
         )
 
