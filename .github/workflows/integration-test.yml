@@ -32,6 +32,7 @@ jobs:
             -v /tmp/test-project/test-app:/work \
             -w /work \
             -e HOME=/home/ocaml \
+            --user root \
             registry.gitlab.inria.fr/catala/ci-images:latest-python \
             sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-build'
 
@@ -53,6 +54,7 @@ jobs:
             -v /tmp/test-project/test-app:/work \
             -w /work \
             -e HOME=/home/ocaml \
+            --user root \
             registry.gitlab.inria.fr/catala/ci-images:latest-python \
             sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-test'
 
