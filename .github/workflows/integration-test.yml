@@ -26,21 +26,14 @@ jobs:
             /tmp/test-project \
             test-app
 
-      - name: Set up OCaml
-        uses: ocaml/setup-ocaml@v3
-        with:
-          ocaml-compiler: 5
-
-      - name: Install Catala
-        run: |
-          opam update
-          opam install catala=1.1.0
-
       - name: Build Catala files
-        working-directory: /tmp/test-project/test-app
         run: |
-          eval $(opam env)
-          make catala-build
+          docker run --rm \
+            -v /tmp/test-project/test-app:/work \
+            -w /work \
+            -e HOME=/home/ocaml \
+            registry.gitlab.inria.fr/catala/ci-images:latest-python \
+            make catala-build
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -55,10 +48,13 @@ jobs:
         run: make setup-local
 
       - name: Run Catala tests
-        working-directory: /tmp/test-project/test-app
         run: |
-          eval $(opam env)
-          make catala-test
+          docker run --rm \
+            -v /tmp/test-project/test-app:/work \
+            -w /work \
+            -e HOME=/home/ocaml \
+            registry.gitlab.inria.fr/catala/ci-images:latest-python \
+            make catala-test
 
       - name: Run Python tests
         working-directory: /tmp/test-project/test-app
