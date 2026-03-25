@@ -1,0 +1,69 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'template/**'
+      - 'copier.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    strategy:
+      matrix:
+        project:
+          - strata-paidleave
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out template
+        uses: actions/checkout@v4
+        with:
+          path: template
+
+      - name: Check out target repo
+        uses: actions/checkout@v4
+        with:
+          repository: navapbc/${{ matrix.project }}
+          path: ${{ matrix.project }}
+          token: ${{ secrets.NAVA_PLATFORM_BOT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install copier
+        run: pip install copier
+
+      - name: Set git credentials for platform-bot
+        run: |
+          git config --global user.email "platform-bot@navapbc.com"
+          git config --global user.name "platform-bot"
+
+      - name: Update project from template
+        run: |
+          copier update \
+            --defaults \
+            --overwrite \
+            --answers-file .copier-answers.yml \
+            --vcs-ref HEAD \
+            --src-path ${{ github.workspace }}/template \
+            .
+        working-directory: ${{ matrix.project }}
+
+      - name: Commit and push updates
+        run: |
+          git add -A
+          git commit -m "Update from template ${{ github.repository }}@${{ github.sha }}" || true
+          git push
+        working-directory: ${{ matrix.project }}
