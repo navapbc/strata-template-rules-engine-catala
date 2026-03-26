@@ -1,4 +1,4 @@
-name: cd
+name: Template Deploy
 
 on:
   push:
@@ -15,55 +15,47 @@ permissions:
 
 concurrency:
   group: cd
-  cancel-in-progress: false
 
 jobs:
   deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         project:
-          - strata-paidleave
-    runs-on: ubuntu-latest
+          - repo: navapbc/strata-paidleave
+            app: rulesengine
+          - repo: navapbc/platform-test
+            app: app-catala
+    concurrency:
+      group: cd-${{ matrix.project.repo }}
     steps:
-      - name: Check out template
-        uses: actions/checkout@v4
+      - name: Checkout project repo
+        uses: actions/checkout@v6
         with:
-          path: template
-
-      - name: Check out target repo
-        uses: actions/checkout@v4
-        with:
-          repository: navapbc/${{ matrix.project }}
-          path: ${{ matrix.project }}
-          token: ${{ secrets.NAVA_PLATFORM_BOT_TOKEN }}
+          path: project-repo
+          repository: ${{ matrix.project.repo }}
+          token: ${{ secrets.PLATFORM_BOT_GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
-      - name: Install copier
-        run: pip install copier
+      - name: Install nava-platform CLI
+        run: pipx install --python "$(which python)" git+https://github.com/navapbc/platform-cli
 
-      - name: Set git credentials for platform-bot
+      - name: Configure git
+        working-directory: project-repo
         run: |
-          git config --global user.email "platform-bot@navapbc.com"
-          git config --global user.name "platform-bot"
+          git config user.name nava-platform-bot
+          git config user.email platform-admins@navapbc.com
 
-      - name: Update project from template
-        run: |
-          copier update \
-            --defaults \
-            --overwrite \
-            --answers-file .copier-answers.yml \
-            --vcs-ref HEAD \
-            --src-path ${{ github.workspace }}/template \
-            .
-        working-directory: ${{ matrix.project }}
+      - name: Update application template
+        working-directory: project-repo
+        run: nava-platform app update --template-uri ${{ github.server_url }}/${{ github.repository }} --version HEAD . ${{ matrix.project.app }}
 
-      - name: Commit and push updates
-        run: |
-          git add -A
-          git commit -m "Update from template ${{ github.repository }}@${{ github.sha }}" || true
-          git push
-        working-directory: ${{ matrix.project }}
+      - name: Push changes to project repo
+        working-directory: project-repo
+        run: git push
