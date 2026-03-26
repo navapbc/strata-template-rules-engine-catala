@@ -35,15 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Catala files
-        run: |
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE/{{app_name}}":/work \
-            -w /work \
-            -e HOME=/home/ocaml \
-            --user root \
-            registry.gitlab.inria.fr/catala/ci-images:latest-python \
-            sh -c 'eval $(opam env) && make SHELL=/bin/sh catala-build'
+      - name: Build
+        run: make build
 
       - name: Run Python tests
         run: make test-coverage
