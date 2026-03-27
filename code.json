@@ -7,7 +7,7 @@
     "licenses": [
       {
         "name": "Apache-2.0",
-        "URL": "https://github.com/navapbc/strata-template-rules-engine-catala/blob/main/LICENSE.md"
+        "URL": "https://github.com/navapbc/strata-template-rules-engine-catala/blob/main/LICENSE"
       }
     ],
     "usageType": [
@@ -36,7 +36,9 @@
     "platform",
     "sdk"
   ],
-  "contact": {},
+  "contact": {
+    "email": "opensource@navapbc.com"
+  },
   "feedbackMechanism": "https://github.com/navapbc/strata-template-rules-engine-catala/issues",
   "AIUseCaseID": "0"
 }
