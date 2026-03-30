@@ -11,15 +11,13 @@ FROM python:3.13-slim AS base
 
 RUN pip install --no-cache-dir poetry==2.1.1
 
-# Ignore pinning apt package dependencies
-# hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
     build-essential \
     wget \
     libgmp-dev libmpfr-dev libmpc-dev gcc libc6-dev \
-    && rm -fr /var/lib/apt/lists
+    && rm -fr /var/lib/apt/lists/*
 
 ARG RUN_UID
 ARG RUN_USER
