@@ -11,8 +11,8 @@ FROM python:3.13-slim AS base
 
 RUN pip install --no-cache-dir poetry==2.1.1
 
-# hadolint ignore=DL3008
 # Ignore pinning apt package dependencies
+# hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
