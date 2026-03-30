@@ -19,16 +19,16 @@ RUN apt-get update \
     build-essential \
     wget \
     libgmp-dev libmpfr-dev libmpc-dev gcc libc6-dev \
-    && rm -fr /var/lib/apt/lists/*
+    && rm -fr /var/lib/apt/lists
 
 ARG RUN_UID
 ARG RUN_USER
 
 RUN : "${RUN_USER:?RUN_USER and RUN_UID need to be set and non-empty.}" && \
     if [ "${RUN_USER}" != "root" ]; then \
-        useradd --create-home --create --user-group --home "/home/${RUN_USER}" --uid ${RUN_UID} "${RUN_USER}" \
-        && mkdir /app \
-        && chown -R ${RUN_UID} "/home/${RUN_USER}" /app; \
+    useradd --create-home --create --user-group --home "/home/${RUN_USER}" --uid ${RUN_UID} "${RUN_USER}" \
+    && mkdir /app \
+    && chown -R ${RUN_UID} "/home/${RUN_USER}" /app; \
     fi
 
 # -----------
