@@ -1,5 +1,8 @@
 """Tests for the rules engine API."""
 
+import importlib
+import os
+
 from fastapi.testclient import TestClient
 
 from src.api import app
@@ -15,7 +18,7 @@ def test_health():
 
 def test_sufficient_balance_medical_leave():
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "medical_leave",
             "leave_periods": [{"length_in_weeks": 4}],
@@ -33,7 +36,7 @@ def test_sufficient_balance_medical_leave():
 
 def test_sufficient_balance_with_prior_leave():
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "medical_leave",
             "leave_periods": [{"length_in_weeks": 5}],
@@ -51,7 +54,7 @@ def test_sufficient_balance_with_prior_leave():
 
 def test_insufficient_balance_exceeds_type_limit():
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "bonding_leave",
             "leave_periods": [{"length_in_weeks": 10}],
@@ -70,7 +73,7 @@ def test_insufficient_balance_exceeds_type_limit():
 def test_insufficient_balance_exceeds_overall_cap():
     """Even if type balance is sufficient, overall 26-week cap is exceeded."""
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "care_for_family_service_member",
             "leave_periods": [{"length_in_weeks": 6}],
@@ -88,7 +91,7 @@ def test_insufficient_balance_exceeds_overall_cap():
 
 def test_multiple_leave_periods():
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "care_for_family",
             "leave_periods": [
@@ -109,7 +112,7 @@ def test_multiple_leave_periods():
 
 def test_invalid_leave_type():
     response = client.post(
-        "/evaluate/leave-balance",
+        "/demo/leave-balance",
         json={
             "leave_type": "invalid_type",
             "leave_periods": [{"length_in_weeks": 1}],
@@ -118,3 +121,26 @@ def test_invalid_leave_type():
         },
     )
     assert response.status_code == 400
+
+
+def test_disabled_module():
+    """Disabling a module via DISABLED_MODULES removes its routes."""
+    import src.api as api_module
+
+    os.environ["DISABLED_MODULES"] = "paidleave"
+    try:
+        importlib.reload(api_module)
+        disabled_client = TestClient(api_module.app)
+        response = disabled_client.post(
+            "/demo/leave-balance",
+            json={
+                "leave_type": "medical_leave",
+                "leave_periods": [{"length_in_weeks": 4}],
+                "leave_taken_in_benefit_year": 0,
+                "total_leave_taken_all_types": 0,
+            },
+        )
+        assert response.status_code == 404
+    finally:
+        os.environ.pop("DISABLED_MODULES", None)
+        importlib.reload(api_module)
