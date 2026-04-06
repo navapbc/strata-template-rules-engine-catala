@@ -55,6 +55,21 @@ To get started using the template application on your project:
 - Generate executable code (Python, OCaml) from the legislative specification
 - Produce human-readable documentation from the same source
 
+## Testing Template Changes
+
+To test template changes locally, install the application locally to a temporary directory to see changes and run tests.
+
+1. [Install the nava-platform tool (if not already installed)](https://github.com/navapbc/platform-cli).
+2. Install template by running in your project's root:
+    ```sh
+    nava-platform app install --template-uri <PATH TO LOCAL CHANGES> <DESTINATION DIRECTORY> <APP_NAME>
+    ```
+   Example:
+   ```sh
+    nava-platform app install --template-uri /path/to/strata-template-rules-engine-catala /tmp/test-catala-project test-app
+    ```
+3. Follow instructions in the project to install and run Catala and Python tests
+
 ## License
 
 This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
