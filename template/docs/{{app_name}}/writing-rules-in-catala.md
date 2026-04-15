@@ -9,6 +9,19 @@
 - Generate executable code (Python, OCaml) from the legislative specification
 - Produce human-readable documentation from the same source
 
+## Working with Catala
+
+Catala source files live in the `catala/src/` directory and are built using [clerk](https://catala-lang.org/), the Catala build system. The build is configured via `catala/clerk.toml`. The typical workflow is:
+
+1. Write or edit rules in `.catala_en` files (see `catala/src/paidleave.catala_en` for an example).
+2. Write test assertions in `catala/tests/`.
+3. Compile Catala to Python: `make catala-build`
+4. Run Catala tests: `make catala-test`
+5. Run all checks: `make test-all`
+
+The compiled Python output goes into `src/generated/` and can be imported by the API layer.
+If new scopes or outputs are added, also update `src/api.py` to add functionality to the API.
+
 ## Adding New Rules
 
 1. Create a new `.catala_en` file in `catala/src/` encoding your legislative text and rules.

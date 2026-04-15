@@ -31,19 +31,6 @@ A simple [docker-compose.yml](/{{ app_name }}/docker-compose.yml) has been inclu
 3. Run `make run-logs` to see the logs of the running container.
 4. Run `make stop` when you are done to stop the container.
 
-## Working with Catala
-
-Catala source files live in the `catala/src/` directory and are built using [clerk](https://catala-lang.org/), the Catala build system. The build is configured via `catala/clerk.toml`. The typical workflow is:
-
-1. Write or edit rules in `.catala_en` files (see `catala/src/paidleave.catala_en` for an example).
-2. Write test assertions in `catala/tests/`.
-3. Compile Catala to Python: `make catala-build`
-4. Run Catala tests: `make catala-test`
-5. Run all checks: `make test-all`
-
-The compiled Python output goes into `src/generated/` and can be imported by the API layer.
-If new scopes or outputs are added, also update `src/api.py` to add functionality to the API.
-
 ## Running natively
 
 - Run `export PY_RUN_APPROACH=local`
