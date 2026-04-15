@@ -25,15 +25,15 @@ root
 
 ## Key Commands
 
-| Command | Description |
-|---|---|
+| Command             | Description                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------- |
 | `make catala-build` | Compile Catala sources to Python via clerk and copy `dates.py` to `src/generated/` |
-| `make catala-test` | Run Catala test assertions via clerk |
-| `make test` | Run Python API tests |
-| `make test-all` | Run all Catala and Python tests |
-| `make format` | Format Python files |
-| `make lint` | Lint Python files |
-| `make check` | Run format check, lint, and tests |
+| `make catala-test`  | Run Catala test assertions via clerk                                               |
+| `make test`         | Run Python API tests                                                               |
+| `make test-all`     | Run all Catala and Python tests                                                    |
+| `make format`       | Format Python files                                                                |
+| `make lint`         | Lint Python files                                                                  |
+| `make check`        | Run format check, lint, and tests                                                  |
 
 See the [Makefile](/{{ app_name }}/Makefile) for a full list of commands.
 
@@ -43,8 +43,8 @@ The dev Docker image installs Python dependencies at build time and volume-mount
 
 Tests, linting, and formatting can be run either inside Docker or natively.
 
-* `export PY_RUN_APPROACH=local` will run commands natively
-* `export PY_RUN_APPROACH=docker` will run commands within Docker (default)
+- `export PY_RUN_APPROACH=local` will run commands natively
+- `export PY_RUN_APPROACH=docker` will run commands within Docker (default)
 
 ## Module system
 
@@ -81,6 +81,7 @@ DISABLED_MODULES=paidleave
 # Disable multiple modules
 DISABLED_MODULES=paidleave,eligibility
 ```
+
 ## Adding New Rules
 
 Please see [Writing Rules In Catala](../docs/{{ app_name }}/writing-rules-in-catala.md).
