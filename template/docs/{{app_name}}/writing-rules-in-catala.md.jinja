@@ -28,5 +28,5 @@ If new scopes or outputs are added, also update `{{ app_name }}/src/api.py` to a
 2. Add a target entry in `{{ app_name }}/catala/clerk.toml` for the new module.
 3. Add test assertions in `{{ app_name }}/catala/tests/`.
 4. Run `make catala-build` to compile to Python (typechecking happens as part of the build; outputs go to `{{ app_name }}/src/generated/`).
-5. Create a new module file in `{{ app_name }}/src/modules/` (see [Module system](#module-system) below).
+5. Create a new module file in `{{ app_name }}/src/modules/` (see [Adding Modules](./adding-modules.md) below).
 6. Add Python tests in `{{ app_name }}/tests/`.
