@@ -1,0 +1,35 @@
+# Module system
+
+The API uses an auto-discovery pattern so that `{{ app_name }}/src/api.py` stays thin and never needs to be edited when adding new Catala modules.
+
+## How it works
+
+Each file in `{{ app_name }}/src/modules/` that exports a `router` (a FastAPI `APIRouter`) is automatically discovered and included in the application at startup. The `paidleave` module is included as a working example.
+
+## Adding a new module
+
+Create a new file in `{{ app_name }}/src/modules/` — for example, `{{ app_name }}/src/modules/eligibility.py`:
+
+```python
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/my-namespace", tags=["eligibility"])
+
+@router.post("/check")
+def check_eligibility(...):
+    ...
+```
+
+That's it — no changes to `api.py` required. The new endpoint will be available at `/my-namespace/check` on the next server start.
+
+## Disabling modules
+
+Set the `DISABLED_MODULES` environment variable to a comma-separated list of module filenames (without `.py`) to prevent them from loading:
+
+```bash
+# Disable the demo paidleave module
+DISABLED_MODULES=paidleave
+
+# Disable multiple modules
+DISABLED_MODULES=paidleave,eligibility
+```
