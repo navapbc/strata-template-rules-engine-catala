@@ -1,0 +1,32 @@
+# Writing Rules In Catala
+
+## What is Catala?
+
+[Catala](https://catala-lang.org/) is a programming language adapted for socio-fiscal legislative purposes. It allows developers to:
+
+- Write rules alongside the legislative text they implement (literate programming)
+- Handle complex legal logic including exceptions and edge cases
+- Generate executable code (Python, OCaml) from the legislative specification
+- Produce human-readable documentation from the same source
+
+## Working with Catala
+
+Catala source files live in the `{{ app_name }}/catala/src/` directory and are built using [clerk](https://catala-lang.org/), the Catala build system. The build is configured via `{{ app_name }}/catala/clerk.toml`. The typical workflow is:
+
+1. Write or edit rules in `.catala_en` files (see `{{ app_name }}/catala/src/paidleave.catala_en` for an example).
+2. Write test assertions in `{{ app_name }}/catala/tests/`.
+3. Compile Catala to Python: `make catala-build`
+4. Run Catala tests: `make catala-test`
+5. Run all checks: `make test-all`
+
+The compiled Python output goes into `{{ app_name }}/src/generated/` and can be imported by the API layer.
+If new scopes or outputs are added, also update `{{ app_name }}/src/api.py` to add functionality to the API.
+
+## Adding new rules
+
+1. Create a new `.catala_en` file in `{{ app_name }}/catala/src/` encoding your legislative text and rules.
+2. Add a target entry in `{{ app_name }}/catala/clerk.toml` for the new module.
+3. Add test assertions in `{{ app_name }}/catala/tests/`.
+4. Run `make catala-build` to compile to Python (typechecking happens as part of the build; outputs go to `{{ app_name }}/src/generated/`).
+5. Create a new module file in `{{ app_name }}/src/modules/` (see [Adding Modules](./adding-modules.md) below).
+6. Add Python tests in `{{ app_name }}/tests/`.
