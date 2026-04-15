@@ -22,7 +22,7 @@ Catala source files live in the `{{ app_name }}/catala/src/` directory and are b
 The compiled Python output goes into `{{ app_name }}/src/generated/` and can be imported by the API layer.
 If new scopes or outputs are added, also update `{{ app_name }}/src/api.py` to add functionality to the API.
 
-## Adding New Rules
+## Adding new rules
 
 1. Create a new `.catala_en` file in `{{ app_name }}/catala/src/` encoding your legislative text and rules.
 2. Add a target entry in `{{ app_name }}/catala/clerk.toml` for the new module.
